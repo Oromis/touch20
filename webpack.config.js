@@ -1,6 +1,7 @@
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var ZipPlugin = require('zip-webpack-plugin');
 
 module.exports = {
   // your root file
@@ -84,6 +85,11 @@ module.exports = {
       output: {comments: false},
       exclude: [/\.min\.js$/gi]		// skip pre-minified libs
     }),
+
+    // new ZipPlugin({
+    //   filename: 'touch20.zip',
+    //   exclude: [/\.zip$/],
+    // })
   ]),
 
   // Pretty terminal output

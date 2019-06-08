@@ -1,6 +1,7 @@
 import './style/main.less'
 
 import $ from 'jquery'
+import screenfull from 'screenfull'
 
 let activeMouseDown = null
 
@@ -94,7 +95,7 @@ function touchHandler(event) {
           console.log(`Zoom factor: ${factor}`)
 
           const evt = new WheelEvent('mousewheel', {
-            deltaY: (factor - 1) * -1000,
+            deltaY: (factor - 1) * 1000,
             altKey: true,
             bubbles: true,
             cancelable: true,
@@ -157,7 +158,6 @@ $(document).ready(() => {
     canvas.addEventListener("touchmove", touchHandler, true);
     canvas.addEventListener("touchend", touchHandler, true);
     canvas.addEventListener("touchcancel", touchHandler, true);
-    canvas.addEventListener('mousewheel', e => console.log(e))
 
     // Once a second, see whether a new dialog was opened. If that is the case,
     // then we'll add touch listeners to it as well to make it draggable.
@@ -174,5 +174,19 @@ $(document).ready(() => {
         }
       })
     }, 1000)
+
+    // Add a fullscreen toggle button
+    const toolbar = document.querySelector('#floatingtoolbar > ul')
+    if (toolbar != null) {
+      const fullscreenButton = document.createElement('li')
+      const fsIcon = document.createElement('img')
+      fsIcon.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAD/SURBVGhD7dg9agJBHIbxTaEkCopViE3A3sYTBDyBoBJyiNxEwUMEJYdI5SXEO0Txo018ZsRGZmX/yrCi7wM/cAoH38rVRCl13z2gZlDFORURui9NGabcB/s3msDSK1YI3ZXmC6YOQ/7wm9EQlp4xQ+iuYxtcNGTpT/n3AQ3RkAhpiIZESkNuZkgF7o0Lf8q/d5w1xDWG9bEjVi+You9PSimllFLqamqgvn95FbXwtH+ZvQLWmPtT/rXhHuNH/mRIvxAjpSEaEikN0ZBIachhyBa9DLpw/z1Ze0PovmPuG/2iIRY/sNRE6J5TzENK+DbqwNIjBgjdleYTSqn7LUl2Bci5+aD+MsEAAAAASUVORK5CYII='
+      fullscreenButton.appendChild(fsIcon)
+      toolbar.appendChild(fullscreenButton)
+
+      fullscreenButton.addEventListener('click', () => {
+        screenfull.toggle(document.documentElement)
+      })
+    }
   }
 })
