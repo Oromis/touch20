@@ -150,7 +150,7 @@ function touchHandler(event) {
 }
 
 $(document).ready(() => {
-  canvas = document.getElementById('upperCanvas')
+  canvas = document.getElementById('finalcanvas')
   if (canvas != null) {
     editorWrapper = document.getElementById('editor-wrapper')
 
