@@ -16,7 +16,7 @@ Touch20 is an extension for Google Chrome which adds touchscreen support to Roll
   * Drag and Drop your characters to move them
   * Pan the map with two fingers to move the viewport
   * Pinch with two fingers to zoom in or out
-  * Enlarged the left-hand toolbar to make the icons easier to hit with using the touch controls
+  * Enlarged the left-hand toolbar to make the icons easier to hit using the touch controls
   * Full support for both fingers and styluses (pens)
   * Touch also works in dialogs (i.e. Turn Order, Character sheets, ...)
   
