@@ -3,8 +3,8 @@ import './style/main.less'
 import $ from 'jquery'
 import screenfull from 'screenfull'
 
-const longTouchDurationMs = 800;
-const longTouchThreshholdPx = 5;
+const longTouchDurationMs = 500;
+const longTouchThreshholdPx = 3;
 const mouseButtons = {
   left: 0,
   right: 2
