@@ -223,7 +223,11 @@ $(document).ready(() => {
     canvas.addEventListener("touchmove", touchHandler, true);
     canvas.addEventListener("touchend", touchHandler, true);
     canvas.addEventListener("touchcancel", touchHandler, true);
-
+    var library = document.getElementById('libraryfolderroot');
+    library.addEventListener("touchstart", simpleTouchHandler, true);
+    library.addEventListener("touchmove", simpleTouchHandler, true);
+    library.addEventListener("touchend", simpleTouchHandler, true);
+    library.addEventListener("touchcancel", simpleTouchHandler, true);
     // Once a second, see whether a new dialog was opened. If that is the case,
     // then we'll add touch listeners to it as well to make it draggable.
     setInterval(() => {
