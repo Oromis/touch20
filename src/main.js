@@ -49,7 +49,19 @@ function fakeTouchEvent(type, touch, mouseButton, recordActiveMouseDown = true) 
     touch.clientX, touch.clientY, false,
     false, false, false, mouseButton, null)
 
-  touch.target.dispatchEvent(simulatedEvent)
+  touch.target.dispatchEvent(simulatedEvent);
+  
+  
+  var toolbar = document.getElementById('floatingtoolbar');
+  // dirty hack for sticky hover on touch suggested here: 
+  //    https://stackoverflow.com/questions/17233804/how-to-prevent-sticky-hover-effects-for-buttons-on-touch-devices
+  if(touch.target.id === 'finalcanvas' && toolbar && toolbar.matches(':hover')) {
+    var toolbar = document.getElementById('floatingtoolbar');
+    var toolbarParent = toolbar.parentNode;
+    var next = toolbar.nextSibling;
+    toolbarParent.removeChild(toolbar);
+    setTimeout(function() { toolbarParent.insertBefore(toolbar, next); }, 0);
+  }
 
   if (recordActiveMouseDown) {
     if (type === 'mousedown') {
