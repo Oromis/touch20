@@ -30,7 +30,6 @@ function sign(num) {
 }
 
 function fakeTouchEvent(type, touch, mouseButton, recordActiveMouseDown = true) {
-  console.log(type);
   if (typeof type === 'object') {
     type = {
       touchstart: 'mousedown',
@@ -91,11 +90,6 @@ function simpleTouchHandler(event) {
 
 // The full touch handler with multi-touch pinching and panning support
 function touchHandler(event) {
-  /*if (event.touches.length <= 1) {
-    fakeTouchEvent(event, event.changedTouches[0], mouseButtons.left)
-  } else if (activeMouseDown != null) {
-    fakeTouchEvent('mouseup', activeMouseDown, mouseButtons.left)
-  }*/
 
   if (event.type === 'touchstart' || event.type === 'touchmove') {
     if (event.type === 'touchmove') {
