@@ -18,6 +18,7 @@ let lastPositions = {};
 let longTouchPrimed = false;
 let startPositions = {};
 let storedTouchStartEvent = null;
+let toolbar = null;
 
 function sign(num) {
   if (num < 0) {
@@ -50,8 +51,6 @@ function fakeTouchEvent(type, touch, mouseButton, recordActiveMouseDown = true) 
 
   touch.target.dispatchEvent(simulatedEvent);
   
-  
-  var toolbar = document.getElementById('floatingtoolbar');
   // dirty hack for sticky hover on touch suggested here: 
   //    https://stackoverflow.com/questions/17233804/how-to-prevent-sticky-hover-effects-for-buttons-on-touch-devices
   if(touch.target.id === 'finalcanvas' && toolbar && toolbar.matches(':hover')) {
@@ -210,6 +209,7 @@ function touchHandler(event) {
 
 $(document).ready(() => {
   canvas = document.getElementById('finalcanvas')
+  toolbar = document.getElementById('floatingtoolbar');
   if (canvas != null) {
     editorWrapper = document.getElementById('editor-wrapper')
 
