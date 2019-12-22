@@ -3,10 +3,21 @@ import './style/main.less'
 import $ from 'jquery'
 import screenfull from 'screenfull'
 
-let activeMouseDown = null
+const longTouchDurationMs = 500;
+const longTouchThreshholdPx = 3;
+const mouseButtons = {
+  left: 0,
+  right: 2
+};
 
-let canvas = null
-let editorWrapper = null
+let activeMouseDown = null;
+let canvas = null;
+let editorWrapper = null;
+let holdTimer = null;
+let lastPositions = {};
+let longTouchPrimed = false;
+let startPositions = {};
+let storedTouchStartEvent = null;
 
 function sign(num) {
   if (num < 0) {
@@ -18,13 +29,13 @@ function sign(num) {
   }
 }
 
-function fakeTouchEvent(type, touch, recordActiveMouseDown = true) {
+function fakeTouchEvent(type, touch, mouseButton, recordActiveMouseDown = true) {
   if (typeof type === 'object') {
     type = {
       touchstart: 'mousedown',
       touchmove: 'mousemove',
       touchend: 'mouseup',
-    }[event.type]
+    }[type.type]
   }
 
   if (type == null) {
@@ -35,9 +46,21 @@ function fakeTouchEvent(type, touch, recordActiveMouseDown = true) {
   simulatedEvent.initMouseEvent(type, true, true, window, 1,
     touch.screenX, touch.screenY,
     touch.clientX, touch.clientY, false,
-    false, false, false, 0/*left*/, null)
+    false, false, false, mouseButton, null)
 
-  touch.target.dispatchEvent(simulatedEvent)
+  touch.target.dispatchEvent(simulatedEvent);
+  
+  
+  var toolbar = document.getElementById('floatingtoolbar');
+  // dirty hack for sticky hover on touch suggested here: 
+  //    https://stackoverflow.com/questions/17233804/how-to-prevent-sticky-hover-effects-for-buttons-on-touch-devices
+  if(touch.target.id === 'finalcanvas' && toolbar && toolbar.matches(':hover')) {
+    var toolbar = document.getElementById('floatingtoolbar');
+    var toolbarParent = toolbar.parentNode;
+    var next = toolbar.nextSibling;
+    toolbarParent.removeChild(toolbar);
+    setTimeout(function() { toolbarParent.insertBefore(toolbar, next); }, 0);
+  }
 
   if (recordActiveMouseDown) {
     if (type === 'mousedown') {
@@ -54,25 +77,33 @@ function fakeTouchEvent(type, touch, recordActiveMouseDown = true) {
   }
 }
 
-let lastPositions = {}
-let startPositions = {}
+function resetLongTouch() {
+  clearTimeout(holdTimer);
+  holdTimer = null;
+  longTouchPrimed = false;
+}
 
 // No multi-touch support (for dragging dialogs etc)
 function simpleTouchHandler(event) {
-  fakeTouchEvent(event, event.changedTouches[0], false)
+  fakeTouchEvent(event, event.changedTouches[0], mouseButtons.left, false)
 }
 
 // The full touch handler with multi-touch pinching and panning support
 function touchHandler(event) {
-  if (event.touches.length <= 1) {
-    fakeTouchEvent(event, event.changedTouches[0])
-  } else if (activeMouseDown != null) {
-    fakeTouchEvent('mouseup', activeMouseDown)
-  }
 
   if (event.type === 'touchstart' || event.type === 'touchmove') {
     if (event.type === 'touchmove') {
-      if (event.touches.length === 2 && Object.keys(lastPositions).length === 2) {
+      if (event.touches.length === 1 && Object.keys(lastPositions).length === 1 && storedTouchStartEvent !== null) {
+        // Check if we're exceeding the long touch movement threshhold. If we are, trigger the stored event.
+        const dxStart = event.touches[0].screenX - startPositions[event.touches[0].identifier].x;
+        const dyStart = event.touches[0].screenY - startPositions[event.touches[0].identifier].y;
+        if (Math.abs(dxStart) > longTouchThreshholdPx || Math.abs(dyStart) > longTouchThreshholdPx) {
+          fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.left, true);
+          storedTouchStartEvent = null;
+          resetLongTouch();
+        }
+      }
+      else if (event.touches.length === 2 && Object.keys(lastPositions).length === 2) {
         // Two-finger touch move
         const dx1Start = event.touches[0].screenX - startPositions[event.touches[0].identifier].x
         const dx2Start = event.touches[1].screenX - startPositions[event.touches[1].identifier].x
@@ -123,6 +154,22 @@ function touchHandler(event) {
           editorWrapper.scrollTop -= dy
         }
       }
+      
+      if (event.touches.length === 1 && activeMouseDown != null) {
+        fakeTouchEvent(event, event.changedTouches[0], mouseButtons.left, false);
+      }
+    }
+    else {
+      // touchstart
+      if (event.touches.length === 1) {
+        storedTouchStartEvent = event;
+        holdTimer = setTimeout(function() {
+          longTouchPrimed = true; }, longTouchDurationMs);
+      }
+      else {
+        storedTouchStartEvent = null;
+        resetLongTouch();
+      }
     }
 
     // Take note of the last positions
@@ -140,13 +187,25 @@ function touchHandler(event) {
         }
       }
     }
-  } else {
+  } 
+  else {
     // touchend or touchcancel
-    lastPositions = {}
-    startPositions = {}
+    if (event.type === 'touchend' && longTouchPrimed && event.touches.length === 0) {
+      fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.right);
+      fakeTouchEvent(event, event.changedTouches[0], mouseButtons.right);
+    }
+    else if (event.touches.length <= 1) {
+      if (activeMouseDown == null && storedTouchStartEvent != null) {
+        fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.left);
+      }
+      fakeTouchEvent(event, event.changedTouches[0], mouseButtons.left);
+    }
+    lastPositions = {};
+    startPositions = {};
+    resetLongTouch();
   }
 
-  event.preventDefault()
+  event.preventDefault();
 }
 
 $(document).ready(() => {
@@ -158,7 +217,11 @@ $(document).ready(() => {
     canvas.addEventListener("touchmove", touchHandler, true);
     canvas.addEventListener("touchend", touchHandler, true);
     canvas.addEventListener("touchcancel", touchHandler, true);
-
+    var library = document.getElementById('libraryfolderroot');
+    library.addEventListener("touchstart", simpleTouchHandler, true);
+    library.addEventListener("touchmove", simpleTouchHandler, true);
+    library.addEventListener("touchend", simpleTouchHandler, true);
+    library.addEventListener("touchcancel", simpleTouchHandler, true);
     // Once a second, see whether a new dialog was opened. If that is the case,
     // then we'll add touch listeners to it as well to make it draggable.
     setInterval(() => {
