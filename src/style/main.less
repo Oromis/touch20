@@ -11,3 +11,15 @@
   transform: scale(1.5);
   transform-origin: center center;
 }
+
+#page-toolbar {
+  &, & .container {
+    height: (160px * 4) !important;
+  }
+
+  .container .pages {
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
