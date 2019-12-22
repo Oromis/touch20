@@ -11,3 +11,7 @@
 #playerzone .player {
   display: none;
 }
+
+.d20contextmenu ul li {
+  padding: 6px 5px !important;
+}
