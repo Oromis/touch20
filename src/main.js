@@ -18,7 +18,6 @@ let lastPositions = {};
 let longTouchPrimed = false;
 let startPositions = {};
 let storedTouchStartEvent = null;
-let subMenus = document.querySelectorAll('.submenu');
 
 function sign(num) {
   if (num < 0) {
@@ -51,17 +50,16 @@ function fakeTouchEvent(type, touch, mouseButton, recordActiveMouseDown = true) 
 
   touch.target.dispatchEvent(simulatedEvent);
   
-  if (touch.target.id === 'finalcanvas') {
-    for (var i = 0; i < subMenus.length; i++) {
-      // dirty hack for sticky hover on touch suggested here: 
-      //    https://stackoverflow.com/questions/17233804/how-to-prevent-sticky-hover-effects-for-buttons-on-touch-devices
-      if (submenus[i].matches(':hover')) {
-        var menuParent = submenus[i].parentNode;
-        var menuPreviousSibling = submenus[i].previousSibling;
-        parentNode.removeChild(submenus[i]);
-        setTimeout(function() { menuParent.insertAfter(submenus[i], menuPreviousSibling); }, 0);
-      }
-    }
+  
+  var toolbar = document.getElementById('floatingtoolbar');
+  // dirty hack for sticky hover on touch suggested here: 
+  //    https://stackoverflow.com/questions/17233804/how-to-prevent-sticky-hover-effects-for-buttons-on-touch-devices
+  if(touch.target.id === 'finalcanvas' && toolbar && toolbar.matches(':hover')) {
+    var toolbar = document.getElementById('floatingtoolbar');
+    var toolbarParent = toolbar.parentNode;
+    var next = toolbar.nextSibling;
+    toolbarParent.removeChild(toolbar);
+    setTimeout(function() { toolbarParent.insertBefore(toolbar, next); }, 0);
   }
 
   if (recordActiveMouseDown) {
