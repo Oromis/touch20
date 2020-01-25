@@ -122,22 +122,31 @@ function touchHandler(event) {
           const newDistY = Math.abs(event.touches[0].screenY - event.touches[1].screenY)
           const newDist = Math.sqrt(newDistX * newDistX + newDistY * newDistY)
 
+          const touchCenter = {
+            x: (event.touches[0].clientX + event.touches[1].clientX) / 2,
+            y: (event.touches[0].clientY + event.touches[1].clientY) / 2,
+          }
+
           const factor = newDist / lastDist
+          const delta = -((factor - 1) * 1000)
           console.log(`Zoom factor: ${factor}`)
 
-          const evt = new WheelEvent('mousewheel', {
-            deltaY: (factor - 1) * 1000,
+          const evt = new WheelEvent('wheel', {
+            isTrusted: true,
+            deltaY: delta,
             altKey: true,
             bubbles: true,
             cancelable: true,
-            x: event.x,
-            y: event.y,
-            layerX: event.layerX,
-            layerY: event.layerY,
-            clientX: event.clientX,
-            clientY: event.clientY,
-            screenX: event.screenX,
-            screenY: event.screenY,
+            x: touchCenter.x,
+            y: touchCenter.y,
+            layerX: touchCenter.x,
+            layerY: touchCenter.y,
+            clientX: touchCenter.x,
+            clientY: touchCenter.y,
+            screenX: touchCenter.x,
+            screenY: touchCenter.y,
+            view: window,
+            which: 1,
           })
           canvas.dispatchEvent(evt)
         } else {
