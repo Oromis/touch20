@@ -1,6 +1,6 @@
 {
   "name": "touch20",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Chrome Extension which introduces touch controls to Roll20",
   "main": "build/main.js",
   "scripts": {
