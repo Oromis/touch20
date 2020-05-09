@@ -29,35 +29,33 @@ function sign(num) {
   }
 }
 
-function fakeTouchEvent(type, touch, mouseButton, recordActiveMouseDown = true) {
-  if (typeof type === 'object') {
-    type = {
-      touchstart: 'mousedown',
-      touchmove: 'mousemove',
-      touchend: 'mouseup',
-    }[type.type]
-  }
-
-  if (type == null) {
+function fakeTouchEvent(originalEvent, touch, mouseButton, recordActiveMouseDown = true) {
+  if (originalEvent == null || typeof originalEvent !== 'object') {
+    console.warn(`Passed invalid event argument to fakeTouchEvent: ${originalEvent}`)
     return
   }
+
+  const type = {
+    touchstart: 'mousedown',
+    touchmove: 'mousemove',
+    touchend: 'mouseup',
+  }[originalEvent.type]
 
   const simulatedEvent = document.createEvent("MouseEvent");
   simulatedEvent.initMouseEvent(type, true, true, window, 1,
     touch.screenX, touch.screenY,
-    touch.clientX, touch.clientY, false,
-    false, false, false, mouseButton, null)
+    touch.clientX, touch.clientY, originalEvent.ctrlKey || false,
+    originalEvent.altKey || false, originalEvent.shiftKey || false, originalEvent.metaKey || false, mouseButton, null)
 
   touch.target.dispatchEvent(simulatedEvent);
   
   
-  var toolbar = document.getElementById('floatingtoolbar');
+  let toolbar = document.getElementById('floatingtoolbar');
   // dirty hack for sticky hover on touch suggested here: 
   //    https://stackoverflow.com/questions/17233804/how-to-prevent-sticky-hover-effects-for-buttons-on-touch-devices
   if(touch.target.id === 'finalcanvas' && toolbar && toolbar.matches(':hover')) {
-    var toolbar = document.getElementById('floatingtoolbar');
-    var toolbarParent = toolbar.parentNode;
-    var next = toolbar.nextSibling;
+    const toolbarParent = toolbar.parentNode;
+    const next = toolbar.nextSibling;
     toolbarParent.removeChild(toolbar);
     setTimeout(function() { toolbarParent.insertBefore(toolbar, next); }, 0);
   }
@@ -90,7 +88,6 @@ function simpleTouchHandler(event) {
 
 // The full touch handler with multi-touch pinching and panning support
 function touchHandler(event) {
-
   if (event.type === 'touchstart' || event.type === 'touchmove') {
     if (event.type === 'touchmove') {
       if (event.touches.length === 1 && Object.keys(lastPositions).length === 1 && storedTouchStartEvent !== null) {
@@ -134,7 +131,10 @@ function touchHandler(event) {
           const evt = new WheelEvent('wheel', {
             isTrusted: true,
             deltaY: delta,
-            altKey: true,
+            altKey: event.altKey || false,
+            shiftKey: event.shiftKey || false,
+            ctrlKey: event.shiftKey || false,
+            metaKey: event.metaKey || false,
             bubbles: true,
             cancelable: true,
             x: touchCenter.x,
@@ -167,15 +167,14 @@ function touchHandler(event) {
       if (event.touches.length === 1 && activeMouseDown != null) {
         fakeTouchEvent(event, event.changedTouches[0], mouseButtons.left, false);
       }
-    }
-    else {
+    } else {
       // touchstart
       if (event.touches.length === 1) {
         storedTouchStartEvent = event;
         holdTimer = setTimeout(function() {
-          longTouchPrimed = true; }, longTouchDurationMs);
-      }
-      else {
+          longTouchPrimed = true;
+        }, longTouchDurationMs);
+      } else {
         storedTouchStartEvent = null;
         resetLongTouch();
       }
@@ -196,8 +195,7 @@ function touchHandler(event) {
         }
       }
     }
-  } 
-  else {
+  } else {
     // touchend or touchcancel
     if (event.type === 'touchend' && longTouchPrimed && event.touches.length === 0) {
       fakeTouchEvent(storedTouchStartEvent, storedTouchStartEvent.changedTouches[0], mouseButtons.right);
@@ -226,6 +224,7 @@ $(document).ready(() => {
     canvas.addEventListener("touchmove", touchHandler, true);
     canvas.addEventListener("touchend", touchHandler, true);
     canvas.addEventListener("touchcancel", touchHandler, true);
+    canvas.addEventListener('wheel', console.log)
     var library = document.getElementById('libraryfolderroot');
     if (library != null) {
       library.addEventListener("touchstart", simpleTouchHandler, true);
