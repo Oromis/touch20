@@ -69,7 +69,8 @@ module.exports = {
 
     // Copy manifest.json
     new CopyWebpackPlugin([
-      {from: 'manifest.json'}
+      {from: 'manifest.json'},
+      {from: 'src/images', to: 'img'}
     ]),
 
     new webpack.DefinePlugin({
