@@ -3,7 +3,7 @@
   "name": "Touch20",
   "short_name": "Touch20",
   "description": "Introduces Touch controls to Roll20",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "icons": {
     "32": "img/touch20-32x32.png",
     "48": "img/touch20-48x48.png",

@@ -10,6 +10,23 @@ const mouseButtons = {
   right: 2
 };
 
+function bitCodeMouseButton(button) {
+  switch (button) {
+    case 0:
+      return 1  // Primary (left) mouse button
+    case 1:
+      return 4  // Auxiliary (middle) mouse button
+    case 2:
+      return 2  // Secondary (right) mouse button
+    case 3:
+      return 8  // "Back" button
+    case 4:
+      return 16 // "Forward" button
+    default:
+      return 0  // No button pressed
+  }
+}
+
 let activeMouseDown = null;
 let canvas = null;
 let editorWrapper = null;
@@ -41,15 +58,30 @@ function fakeTouchEvent(originalEvent, touch, mouseButton, recordActiveMouseDown
     touchend: 'mouseup',
   }[originalEvent.type]
 
-  const simulatedEvent = document.createEvent("MouseEvent");
-  simulatedEvent.initMouseEvent(type, true, true, window, 1,
-    touch.screenX, touch.screenY,
-    touch.clientX, touch.clientY, originalEvent.ctrlKey || false,
-    originalEvent.altKey || false, originalEvent.shiftKey || false, originalEvent.metaKey || false, mouseButton, null)
-
+  const simulatedEvent = new MouseEvent(type, {
+    screenX: touch.screenX,
+    screenY: touch.screenY,
+    clientX: touch.clientX,
+    clientY: touch.clientY,
+    ctrlKey: originalEvent.ctrlKey || false,
+    altKey: originalEvent.altKey || false,
+    shiftKey: originalEvent.shiftKey || false,
+    metaKey: originalEvent.metaKey || false,
+    button: mouseButton,
+    buttons: bitCodeMouseButton(mouseButton),
+    relatedTarget: originalEvent.relatedTarget || null,
+    region: originalEvent.region || null,
+    detail: 0,
+    view: window,
+    sourceCapabilities: originalEvent.sourceCapabilities,
+    eventInit: {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    },
+  })
   touch.target.dispatchEvent(simulatedEvent);
-  
-  
+
   let toolbar = document.getElementById('floatingtoolbar');
   // dirty hack for sticky hover on touch suggested here: 
   //    https://stackoverflow.com/questions/17233804/how-to-prevent-sticky-hover-effects-for-buttons-on-touch-devices
@@ -91,7 +123,7 @@ function touchHandler(event) {
   if (event.type === 'touchstart' || event.type === 'touchmove') {
     if (event.type === 'touchmove') {
       if (event.touches.length === 1 && Object.keys(lastPositions).length === 1 && storedTouchStartEvent !== null) {
-        // Check if we're exceeding the long touch movement threshhold. If we are, trigger the stored event.
+        // Check if we're exceeding the long touch movement threshold. If we are, trigger the stored event.
         const dxStart = event.touches[0].screenX - startPositions[event.touches[0].identifier].x;
         const dyStart = event.touches[0].screenY - startPositions[event.touches[0].identifier].y;
         if (Math.abs(dxStart) > longTouchThreshholdPx || Math.abs(dyStart) > longTouchThreshholdPx) {
@@ -126,7 +158,6 @@ function touchHandler(event) {
 
           const factor = newDist / lastDist
           const delta = -((factor - 1) * 1000)
-          console.log(`Zoom factor: ${factor}`)
 
           const evt = new WheelEvent('wheel', {
             isTrusted: true,
@@ -224,7 +255,6 @@ $(document).ready(() => {
     canvas.addEventListener("touchmove", touchHandler, true);
     canvas.addEventListener("touchend", touchHandler, true);
     canvas.addEventListener("touchcancel", touchHandler, true);
-    canvas.addEventListener('wheel', console.log)
     var library = document.getElementById('libraryfolderroot');
     if (library != null) {
       library.addEventListener("touchstart", simpleTouchHandler, true);
