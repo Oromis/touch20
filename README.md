@@ -24,3 +24,6 @@ Touch20 is an extension for Google Chrome which adds touchscreen support to Roll
   * CTRL, SHIFT and ALT keys are forwarded correctly, thus you can use a combination of keyboard
     and touch to draw different shapes
 
+If you want to show your support for this extension in a financial manner, feel free to donate via PayPal (not required at all though): 
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UV4QZJ8SW4JAN&source=url)
