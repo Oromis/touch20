@@ -1,36 +1,35 @@
 {
   "name": "touch20",
-  "version": "1.3.1",
+  "version": "2.0.0",
   "description": "Chrome Extension which introduces touch controls to Roll20",
   "main": "build/main.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack --watch",
     "build": "cross-env NODE_ENV=production webpack"
   },
-  "author": "David Bauske",
+  "author": "Noah Lekas & Andy Nelson & David Bauske",
   "license": "ISC",
   "devDependencies": {
-    "autoprefixer-loader": "^3.2.0",
-    "babel": "^6.5.2",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^6.2.10",
-    "babel-preset-es2015": "^6.18.0",
-    "copy-webpack-plugin": "^4.0.1",
-    "cross-env": "^3.1.4",
-    "css-loader": "^0.26.1",
-    "extract-text-webpack-plugin": "^1.0.1",
-    "file-loader": "^0.9.0",
-    "less": "^3.11.1",
-    "less-loader": "^2.2.3",
-    "style-loader": "^0.13.1",
-    "url-loader": "^0.5.7",
-    "webpack": "^1.14.0",
-    "webpack-dev-server": "^1.16.2",
-    "zip-webpack-plugin": "^3.0.0"
+    "postcss-loader": "^7.0.1",
+    "@babel/core": "^7.19.3",
+    "babel-loader": "^8.2.5",
+    "@babel/preset-env": "^7.19.3",
+    "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.7.1",
+    "mini-css-extract-plugin": "^2.6.1",
+    "file-loader": "^6.2.0",
+    "less": "^4.1.3",
+    "less-loader": "^11.0.0",
+    "style-loader": "^3.3.1",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.74.0",
+    "webpack-dev-server": "^4.11.1",
+    "zip-webpack-plugin": "^4.0.1"
   },
   "dependencies": {
-    "jquery": "^3.4.1",
-    "lodash": "^4.17.13",
-    "screenfull": "^4.2.0"
+    "jquery": "^3.6.1",
+    "lodash": "^4.17.21",
+    "screenfull": "^6.0.2"
   }
 }
