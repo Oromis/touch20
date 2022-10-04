@@ -1,48 +1,47 @@
-var webpack = require('webpack');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var ZipPlugin = require('zip-webpack-plugin');
+const path = require('path')
+const webpack = require('webpack');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ZipPlugin = require('zip-webpack-plugin');
 
 module.exports = {
-  // your root file
+  name: "dev-config",
+  mode: "development", // "production", "development", "none"
   entry: './src/main.js',
 
   // output JS bundle to: build/bundle.js
   output: {
-    path: './build',
-    filename: 'main.js'
-  },
-
-  resolve: {
-    // you can load named modules from any dirs you want.
-    // attempts to find them in the specified order.
-    modulesDirectories: [
-      './src/lib',
-      'node_modules'
-    ]
+    path: path.resolve(__dirname, 'build'),
+    filename: 'main.js',
+    uniqueName: "touch20",
   },
 
   module: {
-    // you can tell webpack to avoid parsing for dependencies in any files matching an Array of regex patterns
     noParse: [
       /(node_modules|~)\/(jquery)\//gi
     ],
-
-    loaders: [
+    rules: [
       // transpile ES6/7 to ES5 via babel
       {
-        test: /\.jsx?$/,
+        test: /\.m?js$/, ///\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['es2015']
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', {targets: "es2015"}]
+          }
         }
       },
       // bundle LESS and CSS into a single CSS file, auto-generating -vendor-prefixes
       {
-        test: /\.(less|css)$/,
-        exclude: /\b(some\-css\-framework|whatever)\b/i,
-        loader: ExtractTextPlugin.extract("style-loader?sourceMap", "css-loader?sourceMap!autoprefixer?browsers=last 2 version!less-loader")
+        test: /\.css$/i, //test: /\.(less|css)$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          "less-loader"
+            ]
+        //exclude: /\b(some\-css\-framework|whatever)\b/i,
+       // loader: MiniCssExtractPlugin.extract("style-loader?sourceMap", "css-loader?sourceMap!autoprefixer?browsers=last 2 version!less-loader")
       },
       // Copy static files to output folder
       {
@@ -57,21 +56,32 @@ module.exports = {
     ]
   },
 
+  resolve: {
+    // options for resolving module requests
+    // (does not apply to resolving of loaders)
+    // directories where to look for modules (in order)
+    modules: [
+      './src/lib',
+      'node_modules'
+    ],
+    // extensions that are used
+    extensions: [".js", ".json", ".jsx", ".css"],
+
+  },
+
   plugins: ([
     // Avoid publishing files when compilation failed:
-    new webpack.NoErrorsPlugin(),
-
-    // Aggressively remove duplicate modules:
-    new webpack.optimize.DedupePlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
 
     // Write out CSS bundle to its own file:
-    new ExtractTextPlugin('style.css', {allChunks: true}),
+    new MiniCssExtractPlugin({filename: 'style.css'}),
 
     // Copy manifest.json
-    new CopyWebpackPlugin([
-      {from: 'manifest.json'},
+    new CopyWebpackPlugin(
+        {patterns: [
+      {from: 'manifest.json', to: path.resolve(__dirname, "build")},
       {from: 'src/images', to: 'img'}
-    ]),
+    ]}),
 
     new webpack.DefinePlugin({
       'process.env': {
@@ -79,16 +89,9 @@ module.exports = {
       }
     })
   ]).concat(process.env.NODE_ENV === 'development' ? [] : [
-    new webpack.optimize.OccurenceOrderPlugin(),
-
-    // minify the JS bundle
-    new webpack.optimize.UglifyJsPlugin({
-      output: {comments: false},
-      exclude: [/\.min\.js$/gi]		// skip pre-minified libs
-    }),
 
     // new ZipPlugin({
-    //   filename: 'touch20.zip',
+    //   filename: 'touch20.zip',y
     //   exclude: [/\.zip$/],
     // })
   ]),
