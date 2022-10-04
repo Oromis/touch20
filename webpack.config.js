@@ -33,6 +33,7 @@ module.exports = {
         }
       },
       // bundle LESS and CSS into a single CSS file, auto-generating -vendor-prefixes
+        //Updated to MiniCssExtractPlugin
       {
         test: /\.css$/i, //test: /\.(less|css)$/,
         use: [
