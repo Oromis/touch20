@@ -10,8 +10,6 @@ const mouseButtons = {
   right: 2
 };
 
-console.log("test");
-
 function bitCodeMouseButton(button) {
   switch (button) {
     case 0:
