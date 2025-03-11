@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Touch20",
   "short_name": "Touch20",
   "description": "Introduces Touch controls to Roll20",
@@ -10,16 +10,13 @@
     "64": "img/touch20-64x64.png",
     "128": "img/touch20-128x128.png"
   },
-  "permissions": [
+  "host_permissions": [
     "*://*.roll20.net/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "*://*.roll20.net/*"
-      ],
-      "css": [
-        "style.css"
       ],
       "js": [
         "main.js"
@@ -28,9 +25,21 @@
     }
   ],
   "web_accessible_resources": [
-    "main.js",
-    "main.js.map",
-    "style.css",
-    "style.css.map"
+    {
+      "resources": ["main.js"],
+      "matches": ["*://*.roll20.net/*"]
+    },
+    {
+      "resources": ["main.js.map"],
+      "matches": ["*://*.roll20.net/*"]
+    },
+    {
+      "resources": ["style.css"],
+      "matches": ["*://*.roll20.net/*"]
+    },
+    {
+      "resources": ["style.css.map"],
+      "matches": ["*://*.roll20.net/*"]
+    }
   ]
 }
